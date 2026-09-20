@@ -1216,6 +1216,10 @@ async function executeToolJob(toolId) {
 
     switch (toolId) {
       case 'merge': {
+        const nonPdf = mergeQueue.find(f => f.originalName && !f.originalName.toLowerCase().endsWith('.pdf'));
+        if (nonPdf) {
+          throw new Error(`"${nonPdf.originalName}" is not a PDF file. Merge requires all inputs to be PDFs. If you uploaded a Word document (.docx), please convert it to PDF first using the "Word to PDF" tool.`);
+        }
         const fileIds = mergeQueue.map(f => f.id);
         if (fileIds.length < 2) {
           throw new Error('Please add at least 2 PDF files to merge.');

@@ -25,6 +25,10 @@ async function mergeDocuments(inputPaths, outputPath) {
       throw new Error(`Input file not found: ${filePath}`);
     }
     const fileBytes = fs.readFileSync(filePath);
+    const header = fileBytes.slice(0, 5).toString('ascii');
+    if (!header.startsWith('%PDF')) {
+      throw new Error('One of the files to merge is not a valid PDF document (e.g. Word, Excel, or corrupted file). Merge PDF requires all inputs to be valid PDFs. If you uploaded a Word document, please convert it to PDF using "Word to PDF" first.');
+    }
     const pdf = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
     const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
     copiedPages.forEach((page) => mergedPdf.addPage(page));
