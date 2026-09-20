@@ -1,0 +1,67 @@
+services:
+  # ----------------------------------------------------------------------------
+  # MySQL 8.0 Relational Database
+  # ----------------------------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: pdfforge_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-pdfforge_root_secret_2026}
+      MYSQL_DATABASE: ${DB_NAME:-pdfforge}
+      MYSQL_USER: ${DB_USER:-pdfforge_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-pdfforge_secure_pass_2026}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/config/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - pdfforge_net
+
+  # ----------------------------------------------------------------------------
+  # PDFForge Web & API Application Server
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pdfforge_app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-pdfforge_user}
+      DB_PASSWORD: ${DB_PASSWORD:-pdfforge_secure_pass_2026}
+      DB_NAME: ${DB_NAME:-pdfforge}
+      JWT_SECRET: ${JWT_SECRET:-pdfforge_production_super_secret_jwt_key_2026}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-50}
+      TEMP_FILE_EXPIRY_HOURS: ${TEMP_FILE_EXPIRY_HOURS:-24}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - pdfforge_net
+
+volumes:
+  mysql_data:
+    name: pdfforge_mysql_data
+  uploads_data:
+    name: pdfforge_uploads_data
+
+networks:
+  pdfforge_net:
+    name: pdfforge_network
+    driver: bridge

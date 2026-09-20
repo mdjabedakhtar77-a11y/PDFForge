@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard & Account — PDFForge</title>
+  <meta name="description" content="Manage your PDF documents, processing history, favorite tools, and account settings.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><polygon points='12 2 2 7 12 12 22 7 12 2'/></svg>">
+</head>
+<body>
+
+  <!-- Sticky Site Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo" id="brand-logo">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <span>PDFForge</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html#tools" class="nav-link">All Tools</a></li>
+          <li><a href="workspace.html" class="nav-link">Workspace</a></li>
+          <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <span id="user-email-display" style="font-size: 0.85rem; color: var(--text-secondary); margin-right: 0.5rem;"></span>
+        <button id="btn-theme-toggle" class="btn btn-ghost btn-sm" title="Toggle Theme" style="padding: 0.4rem 0.6rem;">
+          🌙
+        </button>
+        <button id="btn-logout" class="btn btn-outline btn-sm">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Container -->
+  <main class="dashboard-container">
+    <!-- Header Title -->
+    <div class="dashboard-header">
+      <div class="dashboard-title-group">
+        <h1 id="greeting-title">User Dashboard</h1>
+        <p>Monitor your PDF processing, manage stored files, and customize your preferences.</p>
+      </div>
+      <div>
+        <a href="workspace.html" class="btn btn-primary btn-sm">
+          <span>+ Process New PDF</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="dashboard-tabs">
+      <button class="dashboard-tab-btn active" data-tab="overview" id="tab-btn-overview">
+        <span>📊 Overview</span>
+      </button>
+      <button class="dashboard-tab-btn" data-tab="files" id="tab-btn-files">
+        <span>📁 My Files</span>
+      </button>
+      <button class="dashboard-tab-btn" data-tab="history" id="tab-btn-history">
+        <span>📜 Processing History</span>
+      </button>
+      <button class="dashboard-tab-btn" data-tab="settings" id="tab-btn-settings">
+        <span>⚙️ Account Settings</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    <div id="tab-pane-overview" class="tab-pane active">
+      <!-- Top Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span>Total Operations</span>
+            <div class="stat-card-icon">⚡</div>
+          </div>
+          <div class="stat-card-value" id="stat-total-ops">0</div>
+          <div class="stat-card-subtext" id="stat-ops-sub">Lifetime PDF manipulations</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span>Completed Jobs</span>
+            <div class="stat-card-icon" style="color: var(--success); background: rgba(16, 185, 129, 0.15);">✓</div>
+          </div>
+          <div class="stat-card-value" id="stat-completed-ops">0</div>
+          <div class="stat-card-subtext">Successfully delivered</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span>Stored Files</span>
+            <div class="stat-card-icon" style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.15);">📁</div>
+          </div>
+          <div class="stat-card-value" id="stat-total-files">0</div>
+          <div class="stat-card-subtext">Active files in workspace</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span>Storage Used</span>
+            <div class="stat-card-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.15);">💾</div>
+          </div>
+          <div class="stat-card-value" id="stat-storage-used">0 MB</div>
+          <div class="stat-card-subtext" id="stat-storage-quota">of 500 MB quota</div>
+        </div>
+      </div>
+
+      <!-- Storage Quota Meter -->
+      <div class="storage-card">
+        <div class="storage-header">
+          <span style="font-weight: 600; font-size: 0.95rem;">Storage Quota</span>
+          <span id="storage-percentage-text" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-primary);">0%</span>
+        </div>
+        <div class="storage-progress-bg">
+          <div id="storage-progress-fill" class="storage-progress-fill" style="width: 0%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+          <span id="storage-bytes-detail">0 KB / 500 MB</span>
+          <span>Temporary files expire automatically after 24h</span>
+        </div>
+      </div>
+
+      <!-- Favorite Tools Section -->
+      <div class="dashboard-table-container" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700;">⭐ Favorite Tools</h3>
+          <a href="index.html#tools" style="font-size: 0.85rem; color: var(--accent-primary); text-decoration: none;">Browse all tools →</a>
+        </div>
+        <div id="favorites-container" class="favorites-grid">
+          <div style="color: var(--text-muted); font-size: 0.9rem; grid-column: 1 / -1;">
+            No favorite tools pinned yet. Star your favorite tools below to access them quickly!
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Operations Table -->
+      <div class="dashboard-table-container">
+        <div class="dashboard-table-header">
+          <h3>⚡ Recent Operations</h3>
+          <button class="btn btn-ghost btn-sm" onclick="switchTab('history')">View All History →</button>
+        </div>
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Tool</th>
+                <th>Input File</th>
+                <th>Status</th>
+                <th>Date & Time</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="recent-jobs-tbody">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No recent operations found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: MY FILES -->
+    <div id="tab-pane-files" class="tab-pane" style="display: none;">
+      <div class="dashboard-table-container">
+        <div class="dashboard-table-header">
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <h3>📁 My Files</h3>
+            <span id="files-count-badge" class="badge badge-tool">0 files</span>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <input type="text" id="files-search-input" class="form-input" placeholder="Search files..." style="padding: 0.45rem 0.85rem; font-size: 0.85rem; width: 220px;">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Size</th>
+                <th>Pages</th>
+                <th>Uploaded</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="files-table-tbody">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">Loading files...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Files Pagination -->
+        <div class="pagination-controls">
+          <span id="files-page-info" style="font-size: 0.85rem; color: var(--text-secondary);">Page 1 of 1</span>
+          <button id="files-prev-btn" class="pagination-btn" disabled>Previous</button>
+          <button id="files-next-btn" class="pagination-btn" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: HISTORY -->
+    <div id="tab-pane-history" class="tab-pane" style="display: none;">
+      <div class="dashboard-table-container">
+        <div class="dashboard-table-header">
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <h3>📜 Processing History</h3>
+            <span id="history-count-badge" class="badge badge-tool">0 jobs</span>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <select id="history-status-filter" class="form-input" style="padding: 0.45rem 0.85rem; font-size: 0.85rem; width: 140px;">
+              <option value="">All Statuses</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="FAILED">Failed</option>
+              <option value="QUEUED">Queued</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Operation</th>
+                <th>Input File</th>
+                <th>Status</th>
+                <th>Completed At</th>
+                <th style="text-align: right;">Download Result</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-tbody">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">Loading history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- History Pagination -->
+        <div class="pagination-controls">
+          <span id="history-page-info" style="font-size: 0.85rem; color: var(--text-secondary);">Page 1 of 1</span>
+          <button id="history-prev-btn" class="pagination-btn" disabled>Previous</button>
+          <button id="history-next-btn" class="pagination-btn" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: SETTINGS -->
+    <div id="tab-pane-settings" class="tab-pane" style="display: none;">
+      <div class="settings-grid">
+        <!-- Profile & Preferences Card -->
+        <div class="settings-card">
+          <h3>👤 Profile & Appearance</h3>
+          <p class="desc">Customize your visual interface and manage your PDFForge profile.</p>
+
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label">Email Address</label>
+            <input type="text" id="profile-email" class="form-input" readonly disabled style="opacity: 0.75;">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label">User Role</label>
+            <input type="text" id="profile-role" class="form-input" readonly disabled style="opacity: 0.75;">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label">Theme Mode</label>
+            <div class="theme-options">
+              <button type="button" class="theme-btn" data-theme="dark" id="theme-btn-dark">
+                <span>🌙</span>
+                <span>Dark</span>
+              </button>
+              <button type="button" class="theme-btn" data-theme="light" id="theme-btn-light">
+                <span>☀️</span>
+                <span>Light</span>
+              </button>
+              <button type="button" class="theme-btn" data-theme="system" id="theme-btn-system">
+                <span>💻</span>
+                <span>System</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.25rem; margin-top: 1.5rem;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">🧹 File Storage Maintenance</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Manually trigger cleanup of expired temporary files older than 24 hours.
+            </p>
+            <button id="btn-trigger-cleanup" class="btn btn-outline btn-sm">Purge Expired Files</button>
+          </div>
+        </div>
+
+        <!-- Security & Password Card -->
+        <div class="settings-card">
+          <h3>🔒 Security & Password</h3>
+          <p class="desc">Update your password to keep your PDF documents and account secure.</p>
+
+          <form id="form-change-password">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label class="form-label" for="current-password">Current Password</label>
+              <input type="password" id="current-password" class="form-input" required placeholder="••••••••">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label class="form-label" for="new-password">New Password</label>
+              <input type="password" id="new-password" class="form-input" required minlength="6" placeholder="At least 6 characters">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+              <label class="form-label" for="confirm-password">Confirm New Password</label>
+              <input type="password" id="confirm-password" class="form-input" required minlength="6" placeholder="Repeat new password">
+            </div>
+
+            <button type="submit" id="btn-submit-password" class="btn btn-primary" style="width: 100%;">
+              Update Password
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <p>© 2026 PDFForge. All PDF processing operates securely in-memory and on your dedicated server.</p>
+  </footer>
+
+  <!-- Dashboard Script -->
+  <script>
+    // State
+    const API_BASE = '/api/dashboard';
+    let currentTab = 'overview';
+    let currentTheme = 'system';
+    let filesPage = 1;
+    let historyPage = 1;
+    let filesSearchTerm = '';
+    let historyStatusFilter = '';
+
+    // Standard available tools for favorites
+    const ALL_TOOLS = [
+      { id: 'merge', name: 'Merge PDF', icon: '🔗' },
+      { id: 'split', name: 'Split PDF', icon: '✂️' },
+      { id: 'compress', name: 'Compress PDF', icon: '🗜️' },
+      { id: 'ocr', name: 'OCR Extract', icon: '🔍' },
+      { id: 'convert-to-word', name: 'PDF to Word', icon: '📝' },
+      { id: 'convert-to-excel', name: 'PDF to Excel', icon: '📊' },
+      { id: 'convert-from-word', name: 'Word to PDF', icon: '📄' },
+      { id: 'organize', name: 'Organize Pages', icon: '📑' },
+      { id: 'bates-numbering', name: 'Bates Numbering', icon: '🔢' },
+      { id: 'edit-metadata', name: 'Edit Metadata', icon: '🏷️' },
+      { id: 'watermark', name: 'Watermark', icon: '💧' },
+      { id: 'rotate', name: 'Rotate PDF', icon: '🔄' }
+    ];
+
+    // Auth Check
+    function getAuthToken() {
+      return localStorage.getItem('pdfforge_token') || localStorage.getItem('token');
+    }
+
+    function requireUserAuth() {
+      const token = getAuthToken();
+      if (!token) {
+        window.location.href = 'auth.html?redirect=dashboard.html';
+        return false;
+      }
+      return true;
+    }
+
+    // API Fetch Wrapper
+    async function apiRequest(endpoint, options = {}) {
+      const token = getAuthToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...(options.headers || {})
+      };
+
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers
+      });
+
+      if (res.status === 401) {
+        localStorage.removeItem('pdfforge_token');
+        localStorage.removeItem('pdfforge_user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'auth.html?redirect=dashboard.html';
+        throw new Error('Session expired');
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || data.message || 'Request failed');
+      }
+      return data;
+    }
+
+    // Toast notifications
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Format bytes
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.dashboard-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+      });
+      document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.style.display = pane.id === `tab-pane-${tabId}` ? 'block' : 'none';
+      });
+
+      if (tabId === 'files') loadFiles();
+      if (tabId === 'history') loadHistory();
+      if (tabId === 'settings') loadSettings();
+    }
+
+    // Theme Management
+    function applyTheme(theme) {
+      currentTheme = theme;
+      if (theme === 'system') {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+      localStorage.setItem('theme', theme);
+
+      // Update UI active buttons
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+      });
+
+      const toggleIcon = document.getElementById('btn-theme-toggle');
+      if (toggleIcon) {
+        toggleIcon.textContent = document.documentElement.getAttribute('data-theme') === 'light' ? '☀️' : '🌙';
+      }
+    }
+
+    async function setThemePreference(theme) {
+      applyTheme(theme);
+      try {
+        await apiRequest('/profile', {
+          method: 'PUT',
+          body: JSON.stringify({ theme })
+        });
+      } catch (err) {
+        console.warn('Could not persist theme to server:', err);
+      }
+    }
+
+    // Load Summary / Overview
+    async function loadSummary() {
+      try {
+        const data = await apiRequest('/summary');
+        const s = data.summary.stats;
+
+        document.getElementById('stat-total-ops').textContent = s.totalOperations || 0;
+        document.getElementById('stat-completed-ops').textContent = s.completedOperations || 0;
+        document.getElementById('stat-total-files').textContent = s.totalFiles || 0;
+        document.getElementById('stat-storage-used').textContent = formatBytes(s.totalStorageBytes);
+
+        // Progress bar
+        const pct = Math.min(100, s.usagePercentage || 0);
+        const fill = document.getElementById('storage-progress-fill');
+        fill.style.width = `${pct}%`;
+        fill.className = `storage-progress-fill ${pct > 85 ? 'warning' : ''}`;
+        document.getElementById('storage-percentage-text').textContent = `${pct}%`;
+        document.getElementById('storage-bytes-detail').textContent = `${formatBytes(s.totalStorageBytes)} / 500 MB`;
+
+        // Render Favorites
+        renderFavorites(data.summary.favoriteTools || []);
+
+        // Render Recent Jobs
+        renderRecentJobs(data.summary.recentJobs || []);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Render Favorites
+    function renderFavorites(userFavorites) {
+      const container = document.getElementById('favorites-container');
+      container.innerHTML = '';
+
+      ALL_TOOLS.forEach(tool => {
+        const isFav = userFavorites.includes(tool.id);
+        const card = document.createElement('div');
+        card.className = 'favorite-item-card';
+        card.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span style="font-size: 1.25rem;">${tool.icon}</span>
+            <span style="font-weight: 600; font-size: 0.9rem;">${tool.name}</span>
+          </div>
+          <button class="favorite-star-btn" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}" data-tool="${tool.id}">
+            ${isFav ? '★' : '☆'}
+          </button>
+        `;
+
+        const starBtn = card.querySelector('.favorite-star-btn');
+        starBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          try {
+            const res = await apiRequest('/favorites/toggle', {
+              method: 'POST',
+              body: JSON.stringify({ toolId: tool.id })
+            });
+            starBtn.textContent = res.isFavorite ? '★' : '☆';
+            showToast(`${tool.name} ${res.isFavorite ? 'added to' : 'removed from'} favorites`, 'success');
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+
+        // Clicking card navigates to tool in workspace
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+          window.location.href = `workspace.html?tool=${tool.id}`;
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    // Render Recent Jobs
+    function renderRecentJobs(jobs) {
+      const tbody = document.getElementById('recent-jobs-tbody');
+      if (!jobs || jobs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No operations recorded yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = jobs.map(j => `
+        <tr>
+          <td><span class="badge badge-tool">${j.tool_name}</span></td>
+          <td>${j.input_file ? j.input_file.original_name : 'Direct / Raw'}</td>
+          <td><span class="badge badge-${(j.status || '').toLowerCase()}">${j.status}</span></td>
+          <td style="color: var(--text-secondary); font-size: 0.85rem;">${new Date(j.created_at).toLocaleString()}</td>
+          <td>
+            ${j.output_file ? `<a href="${j.output_file.download_url}" class="btn btn-outline btn-sm" style="padding: 0.25rem 0.6rem;">Download</a>` : '<span style="color: var(--text-muted); font-size: 0.8rem;">—</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Load Files
+    async function loadFiles() {
+      try {
+        const query = new URLSearchParams({
+          page: filesPage,
+          limit: 10,
+          search: filesSearchTerm
+        });
+        const data = await apiRequest(`/files?${query.toString()}`);
+        const files = data.files || [];
+        const p = data.pagination;
+
+        document.getElementById('files-count-badge').textContent = `${p.total} files`;
+        document.getElementById('files-page-info').textContent = `Page ${p.page} of ${p.totalPages}`;
+        document.getElementById('files-prev-btn').disabled = p.page <= 1;
+        document.getElementById('files-next-btn').disabled = p.page >= p.totalPages;
+
+        const tbody = document.getElementById('files-table-tbody');
+        if (files.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">
+                No files found. Upload a PDF from the workspace to store documents.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = files.map(f => `
+          <tr id="file-row-${f.id}">
+            <td style="font-weight: 600;">${f.original_name}</td>
+            <td>${formatBytes(f.file_size)}</td>
+            <td>${f.page_count || 1}</td>
+            <td style="color: var(--text-secondary); font-size: 0.85rem;">${new Date(f.created_at).toLocaleDateString()}</td>
+            <td style="text-align: right;">
+              <a href="${f.download_url}" class="btn btn-ghost btn-sm" style="padding: 0.25rem 0.5rem;" title="Download">⬇️</a>
+              <button class="btn btn-ghost btn-sm btn-delete-file" data-id="${f.id}" style="padding: 0.25rem 0.5rem; color: var(--danger);" title="Delete">🗑️</button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Wire delete buttons
+        document.querySelectorAll('.btn-delete-file').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            if (!confirm('Are you sure you want to delete this file? This cannot be undone.')) return;
+            try {
+              await apiRequest(`/files/${id}`, { method: 'DELETE' });
+              showToast('File deleted successfully', 'success');
+              loadFiles();
+              loadSummary();
+            } catch (err) {
+              showToast(err.message, 'error');
+            }
+          });
+        });
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Load History
+    async function loadHistory() {
+      try {
+        const query = new URLSearchParams({
+          page: historyPage,
+          limit: 10,
+          ...(historyStatusFilter ? { status: historyStatusFilter } : {})
+        });
+        const data = await apiRequest(`/history?${query.toString()}`);
+        const jobs = data.jobs || [];
+        const p = data.pagination;
+
+        document.getElementById('history-count-badge').textContent = `${p.total} jobs`;
+        document.getElementById('history-page-info').textContent = `Page ${p.page} of ${p.totalPages}`;
+        document.getElementById('history-prev-btn').disabled = p.page <= 1;
+        document.getElementById('history-next-btn').disabled = p.page >= p.totalPages;
+
+        const tbody = document.getElementById('history-table-tbody');
+        if (jobs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">No processing jobs found.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = jobs.map(j => `
+          <tr>
+            <td><span class="badge badge-tool">${j.tool_name}</span></td>
+            <td>${j.input_file ? j.input_file.original_name : 'Direct Input'}</td>
+            <td><span class="badge badge-${(j.status || '').toLowerCase()}">${j.status}</span></td>
+            <td style="color: var(--text-secondary); font-size: 0.85rem;">
+              ${j.completed_at ? new Date(j.completed_at).toLocaleString() : new Date(j.created_at).toLocaleString()}
+            </td>
+            <td style="text-align: right;">
+              ${j.output_file ? `<a href="${j.output_file.download_url}" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.65rem;">Download</a>` : '<span style="color: var(--text-muted); font-size: 0.8rem;">—</span>'}
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Load Settings
+    async function loadSettings() {
+      try {
+        const data = await apiRequest('/profile');
+        document.getElementById('profile-email').value = data.user.email;
+        document.getElementById('profile-role').value = data.user.role;
+        if (data.settings && data.settings.theme) {
+          applyTheme(data.settings.theme);
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Init Page & Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireUserAuth()) return;
+
+      // Display stored user info
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const u = JSON.parse(storedUser);
+          document.getElementById('user-email-display').textContent = u.email;
+          document.getElementById('greeting-title').textContent = `Welcome, ${u.email.split('@')[0]}`;
+        } catch (e) {}
+      }
+
+      // Initial theme setup
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      applyTheme(savedTheme);
+
+      // Top theme toggle quick button
+      document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme');
+        const next = cur === 'light' ? 'dark' : 'light';
+        setThemePreference(next);
+      });
+
+      // Settings theme buttons
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          setThemePreference(btn.dataset.theme);
+        });
+      });
+
+      // Tab navigation buttons
+      document.querySelectorAll('.dashboard-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchTab(btn.dataset.tab);
+        });
+      });
+
+      // Files search debounce
+      let searchTimer;
+      document.getElementById('files-search-input').addEventListener('input', (e) => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          filesSearchTerm = e.target.value;
+          filesPage = 1;
+          loadFiles();
+        }, 300);
+      });
+
+      // Files pagination
+      document.getElementById('files-prev-btn').addEventListener('click', () => {
+        if (filesPage > 1) { filesPage--; loadFiles(); }
+      });
+      document.getElementById('files-next-btn').addEventListener('click', () => {
+        filesPage++; loadFiles();
+      });
+
+      // History filter & pagination
+      document.getElementById('history-status-filter').addEventListener('change', (e) => {
+        historyStatusFilter = e.target.value;
+        historyPage = 1;
+        loadHistory();
+      });
+      document.getElementById('history-prev-btn').addEventListener('click', () => {
+        if (historyPage > 1) { historyPage--; loadHistory(); }
+      });
+      document.getElementById('history-next-btn').addEventListener('click', () => {
+        historyPage++; loadHistory();
+      });
+
+      // Change Password Form
+      document.getElementById('form-change-password').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (newPassword !== confirmPassword) {
+          showToast('New passwords do not match', 'error');
+          return;
+        }
+
+        const btn = document.getElementById('btn-submit-password');
+        btn.disabled = true;
+        btn.textContent = 'Updating...';
+
+        try {
+          await apiRequest('/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ currentPassword, newPassword })
+          });
+          showToast('Password updated successfully!', 'success');
+          document.getElementById('form-change-password').reset();
+        } catch (err) {
+          showToast(err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Update Password';
+        }
+      });
+
+      // Cleanup trigger
+      document.getElementById('btn-trigger-cleanup').addEventListener('click', async () => {
+        if (!confirm('Purge expired temporary files?')) return;
+        try {
+          const res = await apiRequest('/cleanup', {
+            method: 'POST',
+            body: JSON.stringify({ expiryHours: 24 })
+          });
+          showToast(`Cleanup completed. Purged ${res.deletedCount || 0} expired files.`, 'success');
+          loadSummary();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      // Sign Out
+      document.getElementById('btn-logout').addEventListener('click', () => {
+        localStorage.removeItem('pdfforge_token');
+        localStorage.removeItem('pdfforge_user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+      });
+
+      // Initial data load
+      loadSummary();
+    });
+  </script>
+</body>
+</html>

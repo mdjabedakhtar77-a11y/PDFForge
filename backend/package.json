@@ -1,0 +1,41 @@
+{
+  "name": "pdfforge-backend",
+  "version": "1.0.0",
+  "description": "PDFForge Backend - Express API Server & PDF Processing Engine",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "keywords": [
+    "pdf",
+    "pdfforge",
+    "express",
+    "mysql",
+    "pdf-lib"
+  ],
+  "author": "PDFForge Team",
+  "license": "MIT",
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.9",
+    "@pdfsmaller/pdf-decrypt": "^1.0.1",
+    "@pdfsmaller/pdf-encrypt": "^1.2.0",
+    "adm-zip": "^0.6.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "docx": "^9.7.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.12.3",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.9.7",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^3.11.174",
+    "pptxgenjs": "^4.0.1",
+    "tesseract.js": "^7.0.0",
+    "uuid": "^9.0.1",
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+yarn-error.log
+.git
+.gitignore
+.env
+uploads/temp/*
+uploads/results/*
+scripts/*.test.*
+scripts/test_*.js
+scripts/run_all_tests.js
+docs
+*.md
+.DS_Store
+Thumbs.db

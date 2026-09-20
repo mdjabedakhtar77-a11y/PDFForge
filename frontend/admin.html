@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Control Center & Analytics — PDFForge</title>
+  <meta name="description" content="Administrative governance, user management, operations monitoring, and system telemetry for PDFForge.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'><polygon points='12 2 2 7 12 12 22 7 12 2'/></svg>">
+  <style>
+    .admin-badge-crown {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .health-gauge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .health-gauge-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .metric-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-surface-elevated);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .metric-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: var(--accent-gradient);
+    }
+    .json-code-box {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.35rem 0.5rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo" id="brand-logo">
+        <div class="brand-icon" style="background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%);">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <span>PDFForge <span style="font-size: 0.75rem; color: var(--danger); font-weight: 800;">ADMIN</span></span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html#tools" class="nav-link">Tools Hub</a></li>
+          <li><a href="workspace.html" class="nav-link">Workspace</a></li>
+          <li><a href="dashboard.html" class="nav-link">User Dashboard</a></li>
+          <li><a href="admin.html" class="nav-link active" style="color: var(--danger);">Admin Panel</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <span class="admin-badge-crown">👑 ADMINISTRATOR</span>
+        <span id="admin-email-display" style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0.5rem;"></span>
+        <button id="btn-theme-toggle" class="btn btn-ghost btn-sm" title="Toggle Theme" style="padding: 0.4rem 0.6rem;">🌙</button>
+        <button id="btn-logout" class="btn btn-outline btn-sm">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dashboard-container">
+    <div class="dashboard-header">
+      <div class="dashboard-title-group">
+        <h1>Administrative Control Center</h1>
+        <p>Enterprise system governance, user directory, jobs monitoring, and server telemetry.</p>
+      </div>
+      <div>
+        <button id="btn-refresh-data" class="btn btn-outline btn-sm">
+          <span>🔄 Refresh Data</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Tabs -->
+    <div class="dashboard-tabs">
+      <button class="dashboard-tab-btn active" data-tab="overview" id="tab-btn-overview">
+        <span>📈 Analytics Overview</span>
+      </button>
+      <button class="dashboard-tab-btn" data-tab="users" id="tab-btn-users">
+        <span>👥 User Governance</span>
+      </button>
+      <button class="dashboard-tab-btn" data-tab="jobs" id="tab-btn-jobs">
+        <span>⚡ Operations Explorer</span>
+      </button>
+      <button class="dashboard-tab-btn" data-tab="audit" id="tab-btn-audit">
+        <span>🛡️ Audit Trail</span>
+      </button>
+      <button class="dashboard-tab-btn" data-tab="health" id="tab-btn-health">
+        <span>🖥️ System Telemetry</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    <div id="tab-pane-overview" class="tab-pane active">
+      <!-- High Level Metrics -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span>Total Accounts</span>
+            <div class="stat-card-icon" style="color: var(--accent-primary); background: rgba(99, 102, 241, 0.15);">👥</div>
+          </div>
+          <div class="stat-card-value" id="kpi-total-users">0</div>
+          <div class="stat-card-subtext" id="kpi-active-users-sub">0 Active / 0 Disabled</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span>Lifetime Operations</span>
+            <div class="stat-card-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.15);">⚡</div>
+          </div>
+          <div class="stat-card-value" id="kpi-total-jobs">0</div>
+          <div class="stat-card-subtext" id="kpi-jobs-success-sub">0% Success Rate</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span>Global Files Stored</span>
+            <div class="stat-card-icon" style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.15);">📁</div>
+          </div>
+          <div class="stat-card-value" id="kpi-total-files">0</div>
+          <div class="stat-card-subtext" id="kpi-storage-used-sub">0 MB consumed</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span>Failed Operations</span>
+            <div class="stat-card-icon" style="color: var(--danger); background: rgba(239, 68, 68, 0.15);">⚠️</div>
+          </div>
+          <div class="stat-card-value" id="kpi-failed-jobs" style="color: var(--danger);">0</div>
+          <div class="stat-card-subtext" id="kpi-active-ops-sub">0 Active in queue</div>
+        </div>
+      </div>
+
+      <!-- Grid with Most Used Tools & Recent Failures -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Most-Used Tools -->
+        <div class="dashboard-table-container" style="padding: 1.5rem; margin-bottom: 0;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">🔥 Most-Used PDF Tools</h3>
+          <div id="top-tools-container" style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="color: var(--text-muted); font-size: 0.9rem;">No tool operations recorded yet.</div>
+          </div>
+        </div>
+
+        <!-- Recent Failures -->
+        <div class="dashboard-table-container" style="padding: 1.5rem; margin-bottom: 0;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--danger);">⚠️ Recent Operation Failures</h3>
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Tool</th>
+                  <th>Error Description</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="recent-failures-tbody">
+                <tr>
+                  <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No failures detected. System operating normally.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: USERS GOVERNANCE -->
+    <div id="tab-pane-users" class="tab-pane" style="display: none;">
+      <div class="dashboard-table-container">
+        <div class="dashboard-table-header">
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <h3>👥 User Directory & Access Control</h3>
+            <span id="users-count-badge" class="badge badge-tool">0 users</span>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <select id="users-role-filter" class="form-input" style="padding: 0.45rem 0.85rem; font-size: 0.85rem; width: 120px;">
+              <option value="">All Roles</option>
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+            <select id="users-status-filter" class="form-input" style="padding: 0.45rem 0.85rem; font-size: 0.85rem; width: 130px;">
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="disabled">Disabled</option>
+            </select>
+            <input type="text" id="users-search-input" class="form-input" placeholder="Search by email..." style="padding: 0.45rem 0.85rem; font-size: 0.85rem; width: 200px;">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>User Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Storage Used</th>
+                <th>Files</th>
+                <th>Created</th>
+                <th style="text-align: right;">Governance Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-tbody">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">Loading user directory...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-controls">
+          <span id="users-page-info" style="font-size: 0.85rem; color: var(--text-secondary);">Page 1 of 1</span>
+          <button id="users-prev-btn" class="pagination-btn" disabled>Previous</button>
+          <button id="users-next-btn" class="pagination-btn" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: OPERATIONS EXPLORER -->
+    <div id="tab-pane-jobs" class="tab-pane" style="display: none;">
+      <div class="dashboard-table-container">
+        <div class="dashboard-table-header">
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <h3>⚡ System Operations Explorer</h3>
+            <span id="jobs-count-badge" class="badge badge-tool">0 jobs</span>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <select id="jobs-status-filter" class="form-input" style="padding: 0.45rem 0.85rem; font-size: 0.85rem; width: 140px;">
+              <option value="">All Statuses</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="FAILED">Failed</option>
+              <option value="QUEUED">Queued</option>
+              <option value="PROCESSING">Processing</option>
+            </select>
+            <input type="text" id="jobs-search-input" class="form-input" placeholder="Search tool or ID..." style="padding: 0.45rem 0.85rem; font-size: 0.85rem; width: 180px;">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Job ID</th>
+                <th>Tool</th>
+                <th>Initiator</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="jobs-table-tbody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">Loading processing operations...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-controls">
+          <span id="jobs-page-info" style="font-size: 0.85rem; color: var(--text-secondary);">Page 1 of 1</span>
+          <button id="jobs-prev-btn" class="pagination-btn" disabled>Previous</button>
+          <button id="jobs-next-btn" class="pagination-btn" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: AUDIT TRAIL -->
+    <div id="tab-pane-audit" class="tab-pane" style="display: none;">
+      <div class="dashboard-table-container">
+        <div class="dashboard-table-header">
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <h3>🛡️ Administrative Audit Trail</h3>
+            <span id="audit-count-badge" class="badge badge-tool">0 events</span>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <input type="text" id="audit-search-input" class="form-input" placeholder="Filter action..." style="padding: 0.45rem 0.85rem; font-size: 0.85rem; width: 200px;">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Action</th>
+                <th>Target Entity</th>
+                <th>Details</th>
+                <th>IP Address</th>
+              </tr>
+            </thead>
+            <tbody id="audit-table-tbody">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">Loading audit trail...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-controls">
+          <span id="audit-page-info" style="font-size: 0.85rem; color: var(--text-secondary);">Page 1 of 1</span>
+          <button id="audit-prev-btn" class="pagination-btn" disabled>Previous</button>
+          <button id="audit-next-btn" class="pagination-btn" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SYSTEM TELEMETRY -->
+    <div id="tab-pane-health" class="tab-pane" style="display: none;">
+      <div class="health-gauge-grid">
+        <div class="health-gauge-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; font-size: 0.95rem;">Node.js Process Memory</span>
+            <span class="badge badge-completed" id="health-status-badge">HEALTHY</span>
+          </div>
+          <div style="font-size: 1.75rem; font-weight: 800;" id="health-heap-used">0 MB</div>
+          <div class="metric-bar-bg">
+            <div id="health-heap-bar" class="metric-bar-fill" style="width: 25%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+            <span id="health-heap-total">Heap Total: 0 MB</span>
+            <span id="health-rss">RSS: 0 MB</span>
+          </div>
+        </div>
+
+        <div class="health-gauge-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; font-size: 0.95rem;">Host System Memory</span>
+            <span id="health-sysmem-pct" style="font-weight: 700; font-size: 0.85rem; color: var(--accent-cyan);">0%</span>
+          </div>
+          <div style="font-size: 1.75rem; font-weight: 800;" id="health-sys-free">0 GB Free</div>
+          <div class="metric-bar-bg">
+            <div id="health-sys-bar" class="metric-bar-fill" style="width: 40%; background: linear-gradient(135deg, #06b6d4, #6366f1);"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+            <span id="health-sys-total">Total: 0 GB</span>
+            <span id="health-cpus">CPUs: 1</span>
+          </div>
+        </div>
+
+        <div class="health-gauge-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; font-size: 0.95rem;">Runtime & Uptime</span>
+            <span style="font-size: 0.8rem; color: var(--accent-primary);" id="health-node-ver">Node.js</span>
+          </div>
+          <div style="font-size: 1.6rem; font-weight: 800;" id="health-uptime">0s</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;" id="health-platform">
+            Platform: Win32
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);" id="health-temp-files">
+            Active Workspace Temp Files: 0
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <footer class="site-footer">
+    <p>© 2026 PDFForge Administrative Engine. Strict RBAC mediated access.</p>
+  </footer>
+
+  <!-- Admin Script -->
+  <script>
+    const API_ADMIN = '/api/admin';
+    let currentAdminTab = 'overview';
+    let usersPage = 1;
+    let jobsPage = 1;
+    let auditPage = 1;
+
+    function getAuthToken() {
+      return localStorage.getItem('pdfforge_token') || localStorage.getItem('token');
+    }
+
+    function getStoredUser() {
+      try {
+        const raw = localStorage.getItem('pdfforge_user') || localStorage.getItem('user');
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Strict Admin Auth Check
+    function checkAdminAccess() {
+      const token = getAuthToken();
+      const user = getStoredUser();
+
+      if (!token || !user) {
+        window.location.href = 'auth.html?redirect=admin.html';
+        return false;
+      }
+
+      if (user.role !== 'ADMIN') {
+        alert('Access Denied: Administrator privileges required.');
+        window.location.href = 'dashboard.html';
+        return false;
+      }
+
+      document.getElementById('admin-email-display').textContent = user.email;
+      return true;
+    }
+
+    async function adminRequest(endpoint, options = {}) {
+      const token = getAuthToken();
+      const res = await fetch(`${API_ADMIN}${endpoint}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          ...(options.headers || {})
+        }
+      });
+
+      if (res.status === 401) {
+        localStorage.removeItem('pdfforge_token');
+        localStorage.removeItem('pdfforge_user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'auth.html?redirect=admin.html';
+        throw new Error('Session expired.');
+      }
+
+      if (res.status === 403) {
+        throw new Error('Forbidden: You do not have administrative rights.');
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || data.message || 'Request failed');
+      }
+      return data;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function switchAdminTab(tabId) {
+      currentAdminTab = tabId;
+      document.querySelectorAll('.dashboard-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+      });
+      document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.style.display = pane.id === `tab-pane-${tabId}` ? 'block' : 'none';
+      });
+
+      if (tabId === 'overview') loadOverviewMetrics();
+      if (tabId === 'users') loadUsers();
+      if (tabId === 'jobs') loadJobs();
+      if (tabId === 'audit') loadAuditLogs();
+      if (tabId === 'health') loadSystemHealth();
+    }
+
+    // Load Overview Metrics
+    async function loadOverviewMetrics() {
+      try {
+        const data = await adminRequest('/metrics');
+        const m = data.metrics;
+
+        document.getElementById('kpi-total-users').textContent = m.users.totalUsers;
+        document.getElementById('kpi-active-users-sub').textContent = `${m.users.activeUsers} Active / ${m.users.disabledUsers} Disabled`;
+
+        document.getElementById('kpi-total-jobs').textContent = m.jobs.totalJobs;
+        document.getElementById('kpi-jobs-success-sub').textContent = `${m.jobs.successRate}% Success Rate (${m.jobs.completedJobs} Completed)`;
+
+        document.getElementById('kpi-total-files').textContent = m.storage.totalFiles;
+        document.getElementById('kpi-storage-used-sub').textContent = `${formatBytes(m.storage.totalBytes)} consumed`;
+
+        document.getElementById('kpi-failed-jobs').textContent = m.jobs.failedJobs;
+        document.getElementById('kpi-active-ops-sub').textContent = `${m.jobs.activeJobs} Active in queue`;
+
+        // Render top tools
+        const topToolsContainer = document.getElementById('top-tools-container');
+        if (!m.jobs.mostUsedTools || m.jobs.mostUsedTools.length === 0) {
+          topToolsContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem;">No tool operations recorded yet.</div>';
+        } else {
+          const maxCount = Math.max(...m.jobs.mostUsedTools.map(t => t.count), 1);
+          topToolsContainer.innerHTML = m.jobs.mostUsedTools.map(t => {
+            const pct = Math.round((t.count / maxCount) * 100);
+            return `
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">
+                  <span><span class="badge badge-tool">${t.tool_name}</span></span>
+                  <span>${t.count} ops</span>
+                </div>
+                <div class="metric-bar-bg">
+                  <div class="metric-bar-fill" style="width: ${pct}%;"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Render recent failures
+        const failTbody = document.getElementById('recent-failures-tbody');
+        if (!m.recentFailures || m.recentFailures.length === 0) {
+          failTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No failures detected. System operating normally.</td></tr>';
+        } else {
+          failTbody.innerHTML = m.recentFailures.map(f => `
+            <tr>
+              <td><span class="badge badge-failed">${f.tool_name}</span></td>
+              <td style="font-size: 0.85rem; color: var(--danger); font-family: var(--font-mono);">${f.error_message}</td>
+              <td style="font-size: 0.8rem; color: var(--text-secondary);">${new Date(f.created_at).toLocaleTimeString()}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Load Users
+    async function loadUsers() {
+      try {
+        const role = document.getElementById('users-role-filter').value;
+        const status = document.getElementById('users-status-filter').value;
+        const search = document.getElementById('users-search-input').value;
+
+        const query = new URLSearchParams({
+          page: usersPage,
+          limit: 10,
+          role,
+          status,
+          search
+        });
+
+        const data = await adminRequest(`/users?${query.toString()}`);
+        const users = data.users || [];
+        const p = data.pagination;
+
+        document.getElementById('users-count-badge').textContent = `${p.total} users`;
+        document.getElementById('users-page-info').textContent = `Page ${p.page} of ${p.totalPages}`;
+        document.getElementById('users-prev-btn').disabled = p.page <= 1;
+        document.getElementById('users-next-btn').disabled = p.page >= p.totalPages;
+
+        const tbody = document.getElementById('users-table-tbody');
+        if (users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">No users found matching query.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = users.map(u => `
+          <tr>
+            <td style="font-weight: 600;">${u.email}</td>
+            <td><span class="badge ${u.role === 'ADMIN' ? 'badge-failed' : 'badge-tool'}">${u.role}</span></td>
+            <td><span class="badge ${u.is_active ? 'badge-completed' : 'badge-failed'}">${u.is_active ? 'Active' : 'Disabled'}</span></td>
+            <td>${formatBytes(u.storage ? u.storage.totalBytes : 0)}</td>
+            <td>${u.storage ? u.storage.totalFiles : 0}</td>
+            <td style="font-size: 0.85rem; color: var(--text-secondary);">${new Date(u.created_at).toLocaleDateString()}</td>
+            <td style="text-align: right;">
+              <button class="btn btn-ghost btn-sm btn-toggle-status" data-id="${u.id}" data-active="${u.is_active}" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                ${u.is_active ? '🚫 Disable' : '✓ Enable'}
+              </button>
+              <button class="btn btn-outline btn-sm btn-change-role" data-id="${u.id}" data-role="${u.role}" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                ${u.role === 'ADMIN' ? 'Demote' : 'Promote'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Wire status toggles
+        document.querySelectorAll('.btn-toggle-status').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            const currentActive = btn.dataset.active === 'true';
+            const nextActive = !currentActive;
+            if (!confirm(`Are you sure you want to ${nextActive ? 'enable' : 'disable'} this user account?`)) return;
+            try {
+              await adminRequest(`/users/${id}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ isActive: nextActive })
+              });
+              showToast(`Account successfully ${nextActive ? 'enabled' : 'disabled'}`, 'success');
+              loadUsers();
+            } catch (err) {
+              showToast(err.message, 'error');
+            }
+          });
+        });
+
+        // Wire role toggles
+        document.querySelectorAll('.btn-change-role').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            const currentRole = btn.dataset.role;
+            const nextRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
+            if (!confirm(`Change user role to ${nextRole}?`)) return;
+            try {
+              await adminRequest(`/users/${id}/role`, {
+                method: 'PUT',
+                body: JSON.stringify({ role: nextRole })
+              });
+              showToast(`User role updated to ${nextRole}`, 'success');
+              loadUsers();
+            } catch (err) {
+              showToast(err.message, 'error');
+            }
+          });
+        });
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Load Jobs
+    async function loadJobs() {
+      try {
+        const status = document.getElementById('jobs-status-filter').value;
+        const search = document.getElementById('jobs-search-input').value;
+
+        const query = new URLSearchParams({
+          page: jobsPage,
+          limit: 15,
+          status,
+          search
+        });
+
+        const data = await adminRequest(`/jobs?${query.toString()}`);
+        const jobs = data.jobs || [];
+        const p = data.pagination;
+
+        document.getElementById('jobs-count-badge').textContent = `${p.total} jobs`;
+        document.getElementById('jobs-page-info').textContent = `Page ${p.page} of ${p.totalPages}`;
+        document.getElementById('jobs-prev-btn').disabled = p.page <= 1;
+        document.getElementById('jobs-next-btn').disabled = p.page >= p.totalPages;
+
+        const tbody = document.getElementById('jobs-table-tbody');
+        if (jobs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">No processing operations found.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = jobs.map(j => `
+          <tr>
+            <td style="font-family: var(--font-mono); font-size: 0.75rem;">${j.id.substring(0, 8)}...</td>
+            <td><span class="badge badge-tool">${j.tool_name}</span></td>
+            <td style="font-size: 0.85rem;">${j.user_email}</td>
+            <td><span class="badge badge-${(j.status || '').toLowerCase()}">${j.status}</span></td>
+            <td style="font-size: 0.8rem; color: var(--text-secondary);">${new Date(j.created_at).toLocaleString()}</td>
+            <td>
+              ${j.output_file ? `<a href="${j.output_file.download_url}" class="btn btn-outline btn-sm" style="padding: 0.2rem 0.5rem;">Download</a>` : '<span style="color: var(--text-muted); font-size: 0.8rem;">—</span>'}
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Load Audit Logs
+    async function loadAuditLogs() {
+      try {
+        const action = document.getElementById('audit-search-input').value;
+        const query = new URLSearchParams({
+          page: auditPage,
+          limit: 15,
+          action
+        });
+
+        const data = await adminRequest(`/audit-logs?${query.toString()}`);
+        const logs = data.logs || [];
+        const p = data.pagination;
+
+        document.getElementById('audit-count-badge').textContent = `${p.total} events`;
+        document.getElementById('audit-page-info').textContent = `Page ${p.page} of ${p.totalPages}`;
+        document.getElementById('audit-prev-btn').disabled = p.page <= 1;
+        document.getElementById('audit-next-btn').disabled = p.page >= p.totalPages;
+
+        const tbody = document.getElementById('audit-table-tbody');
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">No administrative audit events recorded yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = logs.map(l => `
+          <tr>
+            <td style="font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap;">${new Date(l.created_at).toLocaleString()}</td>
+            <td><span class="badge badge-tool">${l.action}</span></td>
+            <td style="font-size: 0.85rem;">${l.entity_type ? `${l.entity_type} (${(l.entity_id || '').substring(0, 8)}...)` : 'SYSTEM'}</td>
+            <td><div class="json-code-box">${JSON.stringify(l.details || {})}</div></td>
+            <td style="font-size: 0.8rem; font-family: var(--font-mono);">${l.ip_address || '127.0.0.1'}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Load System Health
+    async function loadSystemHealth() {
+      try {
+        const data = await adminRequest('/system-health');
+        const h = data.health;
+
+        document.getElementById('health-heap-used').textContent = h.memory.heapUsedFormatted;
+        document.getElementById('health-heap-total').textContent = `Heap Total: ${formatBytes(h.memory.heapTotal)}`;
+        document.getElementById('health-rss').textContent = `RSS: ${h.memory.rssFormatted}`;
+        const heapPct = Math.min(100, Math.round((h.memory.heapUsed / h.memory.heapTotal) * 100));
+        document.getElementById('health-heap-bar').style.width = `${heapPct}%`;
+
+        document.getElementById('health-sys-free').textContent = `${formatBytes(h.system.freeMemory)} Free`;
+        document.getElementById('health-sysmem-pct').textContent = `${h.system.memoryUsagePercentage}% Used`;
+        document.getElementById('health-sys-total').textContent = `Total: ${formatBytes(h.system.totalMemory)}`;
+        document.getElementById('health-cpus').textContent = `CPUs: ${h.system.cpus}`;
+        document.getElementById('health-sys-bar').style.width = `${h.system.memoryUsagePercentage}%`;
+
+        document.getElementById('health-node-ver').textContent = h.process.nodeVersion;
+        document.getElementById('health-uptime').textContent = h.process.uptimeFormatted;
+        document.getElementById('health-platform').textContent = `Platform: ${h.process.platform} (${h.process.arch}) | PID: ${h.process.pid}`;
+        document.getElementById('health-temp-files').textContent = `Active Workspace Files: ${h.storage.uploadFilesCount} uploads, ${h.storage.resultsFilesCount} results`;
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!checkAdminAccess()) return;
+
+      // Theme toggle
+      document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme');
+        const next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+      });
+
+      // Tab switcher
+      document.querySelectorAll('.dashboard-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchAdminTab(btn.dataset.tab));
+      });
+
+      // Refresh button
+      document.getElementById('btn-refresh-data').addEventListener('click', () => {
+        switchAdminTab(currentAdminTab);
+        showToast('Telemetry refreshed.', 'info');
+      });
+
+      // User filters
+      document.getElementById('users-role-filter').addEventListener('change', () => { usersPage = 1; loadUsers(); });
+      document.getElementById('users-status-filter').addEventListener('change', () => { usersPage = 1; loadUsers(); });
+      let userTimer;
+      document.getElementById('users-search-input').addEventListener('input', () => {
+        clearTimeout(userTimer);
+        userTimer = setTimeout(() => { usersPage = 1; loadUsers(); }, 300);
+      });
+      document.getElementById('users-prev-btn').addEventListener('click', () => { if (usersPage > 1) { usersPage--; loadUsers(); } });
+      document.getElementById('users-next-btn').addEventListener('click', () => { usersPage++; loadUsers(); });
+
+      // Jobs filters
+      document.getElementById('jobs-status-filter').addEventListener('change', () => { jobsPage = 1; loadJobs(); });
+      let jobTimer;
+      document.getElementById('jobs-search-input').addEventListener('input', () => {
+        clearTimeout(jobTimer);
+        jobTimer = setTimeout(() => { jobsPage = 1; loadJobs(); }, 300);
+      });
+      document.getElementById('jobs-prev-btn').addEventListener('click', () => { if (jobsPage > 1) { jobsPage--; loadJobs(); } });
+      document.getElementById('jobs-next-btn').addEventListener('click', () => { jobsPage++; loadJobs(); });
+
+      // Audit filters
+      let auditTimer;
+      document.getElementById('audit-search-input').addEventListener('input', () => {
+        clearTimeout(auditTimer);
+        auditTimer = setTimeout(() => { auditPage = 1; loadAuditLogs(); }, 300);
+      });
+      document.getElementById('audit-prev-btn').addEventListener('click', () => { if (auditPage > 1) { auditPage--; loadAuditLogs(); } });
+      document.getElementById('audit-next-btn').addEventListener('click', () => { auditPage++; loadAuditLogs(); });
+
+      // Logout
+      document.getElementById('btn-logout').addEventListener('click', () => {
+        localStorage.removeItem('pdfforge_token');
+        localStorage.removeItem('pdfforge_user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+      });
+
+      // Theme Management
+      function applyTheme(theme) {
+        const eff = theme === 'system' ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
+        document.documentElement.setAttribute('data-theme', eff);
+        localStorage.setItem('theme', theme);
+        const btn = document.getElementById('btn-theme-toggle');
+        if (btn) btn.textContent = eff === 'light' ? '☀️' : '🌙';
+      }
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      applyTheme(savedTheme);
+      document.getElementById('btn-theme-toggle')?.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+        applyTheme(cur === 'light' ? 'dark' : 'light');
+      });
+
+      // Initial load
+      loadOverviewMetrics();
+    });
+  </script>
+</body>
+</html>

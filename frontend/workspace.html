@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Workspace — PDFForge</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/workspace.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><polygon points='12 2 2 7 12 12 22 7 12 2'/></svg>">
+  <!-- Mozilla PDF.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body class="workspace-layout">
+
+  <!-- Top Toolbar / Workspace Header -->
+  <header class="workspace-header">
+    <div class="workspace-header-left">
+      <a href="index.html" class="btn btn-ghost btn-sm" style="font-weight: 600;">
+        ← Back to Hub
+      </a>
+      <div class="file-title-badge" id="active-file-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <span id="active-file-title">No document loaded</span>
+      </div>
+    </div>
+
+    <div class="workspace-header-center">
+      <!-- Optional central notifications or status -->
+    </div>
+
+    <div class="workspace-header-right">
+      <div id="nav-auth-section">
+        <!-- Managed by auth.js -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Workspace -->
+  <div class="workspace-body">
+
+    <!-- Column 1: Left Thumbnails Sidebar -->
+    <aside class="workspace-sidebar" id="workspace-sidebar">
+      <div class="sidebar-header">
+        <span>Pages</span>
+      </div>
+      <div class="sidebar-selection-actions" id="sidebar-selection-actions" style="display: none;">
+        <button type="button" id="btn-select-all">Select All</button>
+        <span style="color: var(--border-subtle);">|</span>
+        <button type="button" id="btn-clear-selection">Clear</button>
+      </div>
+      <div class="thumbnail-list" id="thumbnail-list">
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 2rem 0.5rem;">
+          Thumbnails will appear here once a document is loaded.
+        </div>
+      </div>
+    </aside>
+
+    <!-- Column 2: Central Canvas Viewport -->
+    <main class="workspace-viewport" id="workspace-viewport">
+      
+      <!-- Empty State Dropzone (visible if no document loaded) -->
+      <div class="workspace-empty-state" id="workspace-empty-state">
+        <div class="dropzone" id="workspace-dropzone">
+          <div class="dropzone-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="dropzone-title">Upload a PDF to Start</h3>
+            <p class="dropzone-desc">Drag and drop your file here, or click to browse.</p>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm">Select Document</button>
+        </div>
+      </div>
+
+      <!-- Floating Sub-Toolbar for Editor Tools -->
+      <div class="editor-subtoolbar" id="editor-subtoolbar" style="display: none;">
+        <button type="button" class="editor-tool-btn active" data-mode="select">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+          Select
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          Text
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="signature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/></svg>
+          Sign
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="rectangle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+          Rectangle
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+          Circle
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="highlight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Highlight
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="whiteout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" fill="currentColor"/></svg>
+          Whiteout
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="draw">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+          Draw
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="form-text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+          + Text Field
+        </button>
+        <button type="button" class="editor-tool-btn" data-mode="form-checkbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><polyline points="9 11 12 14 22 4"/></svg>
+          + Checkbox
+        </button>
+      </div>
+
+      <!-- Canvas Container (hidden until file is loaded) -->
+      <div class="pdf-canvas-container" id="canvas-wrapper" style="display: none;">
+        <canvas id="main-pdf-canvas"></canvas>
+      </div>
+
+      <!-- Floating Zoom & Page Controls Bar -->
+      <div class="floating-toolbar" id="floating-toolbar" style="display: none;">
+        <!-- Page Nav -->
+        <button class="toolbar-btn" id="btn-prev-page" title="Previous Page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <span class="page-indicator" id="page-indicator">1 / 1</span>
+        <button class="toolbar-btn" id="btn-next-page" title="Next Page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Zoom Controls -->
+        <button class="toolbar-btn" id="btn-zoom-out" title="Zoom Out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+        </button>
+        <span class="zoom-indicator" id="zoom-indicator">100%</span>
+        <button class="toolbar-btn" id="btn-zoom-in" title="Zoom In">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <line x1="11" y1="8" x2="11" y2="14"/>
+            <line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+        </button>
+        <button class="toolbar-btn" id="btn-reset-zoom" title="Reset Zoom">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 3 21 3 21 9"/>
+            <polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+        </button>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Rotation -->
+        <button class="toolbar-btn" id="btn-rotate" title="Rotate Clockwise">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+      </div>
+
+    </main>
+
+    <!-- Column 3: Right Options & Actions Panel -->
+    <aside class="workspace-options" id="workspace-options">
+      <div class="options-header">
+        <h2 class="options-title" id="workspace-tool-title">Merge PDF</h2>
+        <p class="options-desc" id="workspace-tool-desc">Combine multiple files into a single document.</p>
+      </div>
+
+      <div class="options-body">
+        <div id="tool-options-container">
+          <!-- Dynamically populated per tool -->
+        </div>
+
+        <!-- Processing Job Status Card -->
+        <div class="job-status-card" id="job-status-card" style="display: none;">
+          <div class="job-status-header">
+            <span>Job Status</span>
+            <span class="status-badge queued" id="job-status-badge">Queued</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="job-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="options-footer">
+        <button type="button" class="btn btn-primary" id="btn-process-pdf" style="width: 100%;">
+          Process Document
+        </button>
+        <button type="button" class="btn btn-success" id="btn-download-result" style="width: 100%; display: none; margin-top: 0.75rem; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.95rem; padding: 0.75rem 1rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span id="btn-download-label">Download Result</span>
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/api.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/upload.js"></script>
+  <script type="module" src="js/pdfViewer.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

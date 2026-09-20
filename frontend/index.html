@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDFForge — Fast, Private & Modular PDF Platform</title>
+  <meta name="description" content="All-in-one high-performance PDF manipulation platform. Merge, split, edit, compress, sign, and convert PDF documents securely.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><polygon points='12 2 2 7 12 12 22 7 12 2'/></svg>">
+</head>
+<body>
+
+  <!-- Sticky Site Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo" id="brand-logo">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <span>PDFForge</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#tools" class="nav-link active">All Tools</a></li>
+          <li><a href="workspace.html" class="nav-link">Workspace</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions" id="nav-auth-section">
+        <a href="auth.html" class="btn btn-outline btn-sm">Sign In</a>
+        <a href="auth.html?mode=register" class="btn btn-primary btn-sm">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-pill">
+        <span>✨ Next-Gen Web PDF Architecture</span>
+      </div>
+      <h1 class="hero-title">
+        Fast, Private & Powerful<br>
+        <span class="gradient-text">PDF Tools in One Place</span>
+      </h1>
+      <p class="hero-subtitle">
+        Merge, split, edit, compress, sign, and convert PDF documents in your browser with bank-grade privacy and real server processing.
+      </p>
+
+      <!-- Instant Dropzone -->
+      <div class="hero-upload-container">
+        <div class="dropzone" id="hero-dropzone">
+          <div class="dropzone-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="dropzone-title">Drop your PDF file here, or browse</h3>
+            <p class="dropzone-desc">Supports PDF documents up to 50MB. Safe, encrypted and temporary.</p>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm">Select PDF Document</button>
+          <div class="dropzone-progress-track" style="width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; margin-top: 0.5rem;">
+            <div class="dropzone-progress-fill" style="width: 0%; height: 100%; background: var(--accent-gradient); transition: width 0.2s;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tool Catalog Section -->
+    <section class="tools-section" id="tools">
+      <div class="tools-header">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="tool-search" class="search-input" placeholder="Search across all PDF tools...">
+        </div>
+
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-category="all">All Tools</button>
+          <button class="filter-tab" data-category="Organize">Organize</button>
+          <button class="filter-tab" data-category="Edit & Sign">Edit & Sign</button>
+          <button class="filter-tab" data-category="Optimize">Optimize</button>
+          <button class="filter-tab" data-category="Convert">Convert</button>
+          <button class="filter-tab" data-category="Security">Security</button>
+          <button class="filter-tab" data-category="Advanced">Advanced</button>
+        </div>
+      </div>
+
+      <!-- Dynamic Grid -->
+      <div class="tools-grid" id="tools-grid">
+        <!-- Rendered dynamically by main.js via /api/tools -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <p>© 2026 PDFForge. Modular Full-Stack PDF Suite. Built with Vanilla Web Standards & Node.js.</p>
+  </footer>
+
+  <!-- Script Modules -->
+  <script type="module" src="js/api.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/upload.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
