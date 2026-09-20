@@ -342,8 +342,18 @@
 
   <!-- Dashboard Script -->
   <script>
+    function getApiBase() {
+      if (window.__API_BASE__) return window.__API_BASE__.replace(/\/$/, '');
+      const stored = localStorage.getItem('pdfforge_api_base');
+      if (stored) return stored.replace(/\/$/, '');
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        return 'https://pdfforge-backend-fevz.onrender.com';
+      }
+      return '';
+    }
+
     // State
-    const API_BASE = '/api/dashboard';
+    const API_BASE = `${getApiBase()}/api/dashboard`;
     let currentTab = 'overview';
     let currentTheme = 'system';
     let filesPage = 1;

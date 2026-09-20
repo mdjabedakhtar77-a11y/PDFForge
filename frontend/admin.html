@@ -396,7 +396,17 @@
 
   <!-- Admin Script -->
   <script>
-    const API_ADMIN = '/api/admin';
+    function getApiBase() {
+      if (window.__API_BASE__) return window.__API_BASE__.replace(/\/$/, '');
+      const stored = localStorage.getItem('pdfforge_api_base');
+      if (stored) return stored.replace(/\/$/, '');
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        return 'https://pdfforge-backend-fevz.onrender.com';
+      }
+      return '';
+    }
+
+    const API_ADMIN = `${getApiBase()}/api/admin`;
     let currentAdminTab = 'overview';
     let usersPage = 1;
     let jobsPage = 1;

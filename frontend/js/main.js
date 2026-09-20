@@ -7,11 +7,11 @@ import { PDFViewer } from './pdfViewer.js';
 import { EditorOverlayManager } from './editorOverlay.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const path = window.location.pathname;
+  const path = window.location.pathname.toLowerCase();
 
-  if (path.includes('workspace.html')) {
+  if (path.includes('workspace')) {
     initWorkspace();
-  } else if (path.includes('auth.html')) {
+  } else if (path.includes('auth')) {
     initAuthPage();
   } else {
     // Default to Landing / Tool Hub

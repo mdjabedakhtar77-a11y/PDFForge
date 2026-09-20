@@ -99,7 +99,7 @@ function defaultProgressHandler(percent) {
 
 function defaultFileHandler(file) {
   // If we are on landing page, redirect to workspace
-  if (!window.location.pathname.includes('workspace.html')) {
+  if (!window.location.pathname.includes('workspace')) {
     window.location.href = `workspace.html?fileId=${file.id}&filename=${encodeURIComponent(file.originalName)}`;
   }
 }

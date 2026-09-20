@@ -27,32 +27,34 @@ const PORT = process.env.PORT || 3000;
 // Ensure upload directories exist
 ensureDirs();
 
-// Security HTTP Headers with tailored CSP
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "blob:"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-        imgSrc: ["'self'", "data:", "blob:"],
-        connectSrc: ["'self'", "blob:"],
-        workerSrc: ["'self'", "blob:"],
-        objectSrc: ["'self'", "blob:"]
-      }
-    },
-    crossOriginEmbedderPolicy: false
-  })
-);
-
-// Configurable CORS Origin
+// Configurable CORS Origin (configured before routes & with full methods)
 const allowedOrigin = process.env.CORS_ORIGIN || '*';
 app.use(
   cors({
     origin: allowedOrigin === '*' ? true : allowedOrigin.split(',').map(o => o.trim()),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  })
+);
+
+// Security HTTP Headers with cross-origin support
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", "*"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "blob:"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "blob:", "*"],
+        connectSrc: ["*"],
+        workerSrc: ["'self'", "blob:"],
+        objectSrc: ["'self'", "blob:"]
+      }
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
 

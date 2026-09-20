@@ -29,7 +29,7 @@ export function logout() {
   removeToken();
   showToast('Signed out.', 'info');
   updateNavAuthUI();
-  if (window.location.pathname.includes('auth.html')) {
+  if (window.location.pathname.includes('auth')) {
     window.location.reload();
   }
 }
