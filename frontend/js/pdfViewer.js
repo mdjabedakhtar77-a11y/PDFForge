@@ -49,11 +49,14 @@ export class PDFViewer {
           url += (url.includes('?') ? '&' : '?') + `token=${encodeURIComponent(token)}`;
         }
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-        docParam = {
-          url,
-          httpHeaders: headers,
-          withCredentials: true
-        };
+
+        // Fetch binary directly with standard fetch for full cross-origin compatibility
+        const response = await fetch(url, { headers });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch document (HTTP ${response.status})`);
+        }
+        const buffer = await response.arrayBuffer();
+        docParam = { data: new Uint8Array(buffer) };
       }
 
       const loadingTask = window.pdfjsLib.getDocument(docParam);
