@@ -4,8 +4,7 @@
   "description": "PDFForge Frontend - Modern Web Client for PDF Processing",
   "scripts": {
     "dev": "npx serve -s . -l 5000",
-    "start": "npx serve -s . -l 5000",
-    "build": "echo 'Frontend static assets are production ready'"
+    "start": "npx serve -s . -l 5000"
   },
   "keywords": [
     "pdfforge",

@@ -7,6 +7,10 @@ export function getApiBase() {
     if (window.__API_BASE__) return window.__API_BASE__.replace(/\/$/, '');
     const stored = localStorage.getItem('pdfforge_api_base');
     if (stored) return stored.replace(/\/$/, '');
+    // When hosted remotely (e.g. Vercel), automatically route to the live Render backend
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return 'https://pdfforge-backend-fevz.onrender.com';
+    }
   }
   return '';
 }
